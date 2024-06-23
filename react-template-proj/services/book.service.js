@@ -1,88 +1,97 @@
 import { utilService } from './util.service.js'
 import { storageService } from './async-storage.service.js'
 
-const CAR_KEY = 'carDB'
-var gFilterBy = { txt: '', minSpeed: 0 }
-_createCars()
+const BOOK_KEY = 'bookDB'
+var gFilterBy = { title: '' }
+var gNextId = 1
+console.log('gNextId: ', gNextId)
 
-export const carService = {
+
+export const bookService = {
     query,
     get,
     remove,
     save,
-    getEmptyCar,
-    getNextCarId,
-    getFilterBy,
-    setFilterBy
+    // getBook,
+    // getNextBookId,
+    // getFilterBy,
+    setFilterBy,
+    getDefaultFilter
 }
 
 function query() {
-    return storageService.query(CAR_KEY)
-        .then(cars => {
-            if (gFilterBy.txt) {
-                const regex = new RegExp(gFilterBy.txt, 'i')
-                cars = cars.filter(car => regex.test(car.vendor))
+    return storageService.query(BOOK_KEY)
+        .then(books => {
+            if (gFilterBy.title) {
+                const regex = new RegExp(gFilterBy.title, 'i')
+                books = books.filter(book => regex.test(book.title))
             }
-            if (gFilterBy.minSpeed) {
-                cars = cars.filter(car => car.maxSpeed >= gFilterBy.minSpeed)
-            }
-            return cars
+            return books
         })
 }
 
-function get(carId) {
-    return storageService.get(CAR_KEY, carId)
+function get(bookId) {
+    return storageService.get(BOOK_KEY, bookId)
 }
 
-function remove(carId) {
-    return storageService.remove(CAR_KEY, carId)
+function remove(bookId) {
+    return storageService.remove(BOOK_KEY, bookId)
 }
 
-function save(car) {
-    if (car.id) {
-        return storageService.put(CAR_KEY, car)
+function save(book) {
+    if (book.id) {
+        return storageService.put(BOOK_KEY, book)
     } else {
-        return storageService.post(CAR_KEY, car)
+        return storageService.post(BOOK_KEY, book)
     }
 }
 
-function getBook(title = '') {
-    return { id: utilService.makeId(), title, listPrice}
-}
+// function getBook(title = '') {
+//     var check =  { id: gNextId++, title }
+//     console.log('id check', check.id)
+//     return check
+// }
 
-function getFilterBy() {
-    return { ...gFilterBy }
-}
+// function getFilterBy() {
+//     return { ...gFilterBy }
+// }
 
 function setFilterBy(filterBy = {}) {
-    if (filterBy.txt !== undefined) gFilterBy.txt = filterBy.txt
-    if (filterBy.minSpeed !== undefined) gFilterBy.minSpeed = filterBy.minSpeed
+    if (filterBy.id !== undefined) gFilterBy.id = filterBy.id
+    if (filterBy.title !== undefined) gFilterBy.title = filterBy.title
+    // if (filterBy.listPrice !== undefined) gFilterBy.listPrice = filterBy.listPrice
     return gFilterBy
 }
 
-function getNextCarId(carId) {
-    return storageService.query(CAR_KEY)
-        .then(cars => {
-            let nextCarIdx = cars.findIndex(car => car.id === carId) + 1
-            if (nextCarIdx === cars.length) nextCarIdx = 0
-            return cars[nextCarIdx].id
-        })
-}
+// function getNextBookId(bookId) {
+//     return storageService.query(BOOK_KEY)
+//         .then(books => {
+//             let nextBookIdx = books.findIndex(book => book.id === bookId) + 1
+//             if (nextBookIdx === books.length) nextBookIdx = 0
+//             return books[nextBookIdx].id
+//         })
+// }
 
-function _createCars() {
-    let cars = utilService.loadFromStorage(CAR_KEY)
-    if (!cars || !cars.length) {
-        cars = []
-        cars.push(_createCar('audu', 300))
-        cars.push(_createCar('fiak', 120))
-        cars.push(_createCar('subali', 100))
-        cars.push(_createCar('mitsu', 150))
-        utilService.saveToStorage(CAR_KEY, cars)
+function _createBooks() {
+    let books = utilService.loadFromStorage(BOOK_KEY)
+    if (!books || !books.length) {
+        books = []
+        books.push(_createBook('Metus Hendrerit'))
+        books.push(_createBook('Morbi'))
+        books.push(_createBook('At Viverra Venenatis'))
+        books.push(_createBook('Dictum'))
+        utilService.saveToStorage(BOOK_KEY, books)
     }
 }
 
-function _createCar(vendor, maxSpeed = 250) {
-    const car = getBook(vendor, maxSpeed)
-    car.id = utilService.makeId()
-    return car
+function _createBook(title) {
+    // const book = getBook(title)
+    
+    return {id: gNextId++, thumbnail: `http://coding-academy.org/books-photos/${gNextId}.jpg`, title }
 }
+
+function getDefaultFilter() {
+    return gFilterBy
+}
+
+_createBooks()
