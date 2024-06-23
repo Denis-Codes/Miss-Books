@@ -46,8 +46,8 @@ function save(car) {
     }
 }
 
-function getEmptyCar(vendor = '', maxSpeed = 0) {
-    return { id: '', vendor, maxSpeed }
+function getBook(title = '') {
+    return { id: utilService.makeId(), title, listPrice}
 }
 
 function getFilterBy() {
@@ -82,7 +82,7 @@ function _createCars() {
 }
 
 function _createCar(vendor, maxSpeed = 250) {
-    const car = getEmptyCar(vendor, maxSpeed)
+    const car = getBook(vendor, maxSpeed)
     car.id = utilService.makeId()
     return car
 }
